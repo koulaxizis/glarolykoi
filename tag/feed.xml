@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <author>Χρήστος Κουλαξίζης</author>
-  <title>Γλαρόλυκοι</title>
+  <title>Γλαρόλυκοι - </title>
   <link href="https://glarolykoi.net/feed.xml" rel="self" />
   <link href="https://glarolykoi.net/" />
   <icon>https://glarolykoi.net/favicon.ico</icon>
-  <logo>https://glarolykoi.net/static/img/avatar.png</logo>
+  <logo>https://glarolykoi.net/static/img/</logo>
   <updated>2020-07-08T11:43:16Z</updated>
   
     <entry>

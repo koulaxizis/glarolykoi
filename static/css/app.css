@@ -137,3 +137,19 @@ a.text-muted {
 .dt {
     display: none;
 }
+
+.responsive {
+  max-width: 100%;
+  height: auto;
+}
+
+
+.credits {
+    border-style: dashed;
+    border-width: 3px;
+    border-left-width: 7px;
+    border-right-width: 7px;
+    border-color: silver;
+    padding:10px;
+    text-align: center;
+}
