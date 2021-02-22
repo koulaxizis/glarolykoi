@@ -1,34 +1,92 @@
 /*
-	Overflow by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+	Magnetic by Pixelarity
+	pixelarity.com | hello@pixelarity.com
+	License: pixelarity.com/license
 */
 
 (function($) {
 
 	var	$window = $(window),
-		$body = $('body'),
-		settings = {
+		$body = $('body');
 
-			// Parallax background effect?
-				parallax: true,
+	/**
+	 * Applies parallax scrolling to an element's background image.
+	 * @return {jQuery} jQuery object.
+	 */
+	$.fn._parallax = (browser.name == 'ie' || browser.name == 'edge' || browser.mobile) ? function() { return $(this) } : function(intensity) {
 
-			// Parallax factor (lower = more intense, higher = less intense).
-				parallaxFactor: 10
+		var	$window = $(window),
+			$this = $(this);
 
-		};
+		if (this.length == 0 || intensity === 0)
+			return $this;
+
+		if (this.length > 1) {
+
+			for (var i=0; i < this.length; i++)
+				$(this[i])._parallax(intensity);
+
+			return $this;
+
+		}
+
+		if (!intensity)
+			intensity = 0.25;
+
+		$this.each(function() {
+
+			var $t = $(this),
+				on, off;
+
+			on = function() {
+
+				$t.css('background-position', 'center 100%, center 100%, center 0px');
+
+				$window
+					.on('scroll._parallax', function() {
+
+						var pos = parseInt($window.scrollTop()) - parseInt($t.position().top);
+
+						$t.css('background-position', 'center ' + (pos * (-1 * intensity)) + 'px');
+
+					});
+
+			};
+
+			off = function() {
+
+				$t
+					.css('background-position', '');
+
+				$window
+					.off('scroll._parallax');
+
+			};
+
+			breakpoints.on('<=medium', off);
+			breakpoints.on('>medium', on);
+
+		});
+
+		$window
+			.off('load._parallax resize._parallax')
+			.on('load._parallax resize._parallax', function() {
+				$window.trigger('scroll');
+			});
+
+		return $(this);
+
+	};
 
 	// Breakpoints.
 		breakpoints({
-			wide:    [ '1081px',  '1680px' ],
-			normal:  [ '841px',   '1080px' ],
-			narrow:  [ '737px',   '840px'  ],
-			mobile:  [ null,      '736px'  ]
+			xlarge:   [ '1281px',  '1680px' ],
+			large:    [ '981px',   '1280px' ],
+			medium:   [ '737px',   '980px'  ],
+			small:    [ '481px',   '736px'  ],
+			xsmall:   [ '361px',   '480px'  ],
+			xxsmall:  [ null,      '360px'  ]
 		});
-
-	// Mobile?
-		if (browser.mobile)
-			$body.addClass('is-scroll');
 
 	// Play initial animations on page load.
 		$window.on('load', function() {
@@ -37,69 +95,97 @@
 			}, 100);
 		});
 
-	// Scrolly.
-		$('.scrolly-middle').scrolly({
-			speed: 1000,
-			anchor: 'middle'
-		});
+	// Body.
+		$body._parallax(-0.7);
 
-		$('.scrolly').scrolly({
-			speed: 1000,
-			offset: function() { return (breakpoints.active('<=mobile') ? 70 : 190); }
-		});
+	// Menu.
+		var $menu = $('#menu');
 
-	// Parallax background.
+		$menu._locked = false;
 
-		// Disable parallax on IE/Edge (smooth scrolling is jerky), and on mobile platforms (= better performance).
-			if (browser.name == 'ie'
-			||	browser.name == 'edge'
-			||	browser.mobile)
-				settings.parallax = false;
+		$menu._lock = function() {
 
-		if (settings.parallax) {
+			if ($menu._locked)
+				return false;
 
-			var $dummy = $(), $bg;
+			$menu._locked = true;
 
-			$window
-				.on('scroll.overflow_parallax', function() {
+			window.setTimeout(function() {
+				$menu._locked = false;
+			}, 350);
 
-					// Adjust background position.
-						$bg.css('background-position', 'center ' + (-1 * (parseInt($window.scrollTop()) / settings.parallaxFactor)) + 'px');
+			return true;
 
+		};
+
+		$menu._show = function() {
+
+			if ($menu._lock())
+				$body.addClass('is-menu-visible');
+
+		};
+
+		$menu._hide = function() {
+
+			if ($menu._lock())
+				$body.removeClass('is-menu-visible');
+
+		};
+
+		$menu._toggle = function() {
+
+			if ($menu._lock())
+				$body.toggleClass('is-menu-visible');
+
+		};
+
+		$menu
+			.appendTo($body)
+			.on('click', function(event) {
+
+				event.stopPropagation();
+
+				// Hide.
+					$menu._hide();
+
+			})
+			.find('.inner')
+				.on('click', function(event) {
+					event.stopPropagation();
 				})
-				.on('resize.overflow_parallax', function() {
+				.on('click', 'a', function(event) {
 
-					// If we're in a situation where we need to temporarily disable parallax, do so.
-						if (breakpoints.active('<=narrow')) {
+					var href = $(this).attr('href');
 
-							$body.css('background-position', '');
-							$bg = $dummy;
+					event.preventDefault();
+					event.stopPropagation();
 
-						}
+					// Hide.
+						$menu._hide();
 
-					// Otherwise, continue as normal.
-						else
-							$bg = $body;
+					// Redirect.
+						window.setTimeout(function() {
+							window.location.href = href;
+						}, 350);
 
-					// Trigger scroll handler.
-						$window.triggerHandler('scroll.overflow_parallax');
+				});
 
-				})
-				.trigger('resize.overflow_parallax');
+		$body
+			.on('click', 'a[href="#menu"]', function(event) {
 
-		}
+				event.stopPropagation();
+				event.preventDefault();
 
-	// Poptrox.
-		$('.gallery').poptrox({
-			useBodyOverflow: false,
-			usePopupEasyClose: false,
-			overlayColor: '#0a1919',
-			overlayOpacity: 0.75,
-			usePopupDefaultStyling: false,
-			usePopupCaption: true,
-			popupLoaderText: '',
-			windowMargin: 10,
-			usePopupNav: true
-		});
+				// Toggle.
+					$menu._toggle();
+
+			})
+			.on('keydown', function(event) {
+
+				// Hide on escape.
+					if (event.keyCode == 27)
+						$menu._hide();
+
+			});
 
 })(jQuery);
